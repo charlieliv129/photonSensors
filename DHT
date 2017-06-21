@@ -69,7 +69,7 @@ void loop() {
         apart = analogRead(door); // Get a reading
         if (open == true)
         {}
-        else if(rawAnalogStrength > 400)
+        else if(apart > 400)
         {   
             open = true;
         }
