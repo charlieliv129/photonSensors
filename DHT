@@ -111,6 +111,7 @@ void loop() {
     Particle.publish("DewPt", String(dew), PRIVATE);
     delay(500);
     digitalWrite(blue, LOW);
+    displayData();
     delay(sampleInt);
 }
 
