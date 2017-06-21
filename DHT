@@ -14,6 +14,7 @@
 #define cs A2 //chip select for LCD
 #define dc D0
 #define rst 0
+#define inputPin D2
 
 
 int sampleInt = 60000;
@@ -27,6 +28,7 @@ double humidityD;
 int dew;
 int blue = D7;
 String location = "BTC_CBD_1";
+int val = LOW;   // variable for reading the pin status
 
 Adafruit_ST7735 tft = Adafruit_ST7735(cs, dc, rst); //hardware spi
 PietteTech_DHT DHT(DHTPIN, DHTTYPE);
@@ -53,8 +55,26 @@ void setup() {
 }
 
 void loop() {
+    bool status = false;
+    int i = 0; //start loop over
     
     int result = DHT.acquireAndWait(1000); //wait up to 1 sec (default indefinitely)
+    while (i < 60)
+    {
+        val = digitalRead(inputPin); //read input value
+        if (status == true) //already registered motion in last 30 seconds
+        {   
+            i++;
+            delay(1000);
+            continue;
+        }
+        if (val == HIGH) //if motion for first time
+        {
+            status = true; //has seen motion
+        }
+        delay(1000);
+        i++;
+    }
     
     switch (result){
         case DHTLIB_OK:
@@ -111,14 +131,14 @@ void loop() {
     Particle.publish("DewPt", String(dew*1.8+32), PRIVATE);
     delay(500);
     digitalWrite(blue, LOW);
-    displayData();
-    delay(sampleInt);
+    displayData(status);
+    //delay(sampleInt);
 }
 
-void displayData()
+void displayData(bool status)
 {
     tft.fillScreen(ST7735_BLACK); //setting up screen
-    tft.setTextSize(2);
+    tft.setTextSize(1);
     tft.setCursor(0,0);
     tft.print("Temp: ");
     tft.println(DHT.getFahrenheit(),1);
@@ -126,4 +146,8 @@ void displayData()
     tft.println(DHT.getHumidity(),1);
     tft.print("DewPt: ");
     tft.println(DHT.getDewPoint()*1.8+32, 1);
+    if (status == true)
+        tft.println("Motion");
+    else
+        tft.println("Motion");   
 }
