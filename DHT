@@ -153,7 +153,7 @@ void loop() {
     //delay(sampleInt);
 }
 
-void displayData(bool status, bool door)
+void displayData(bool status, bool open)
 {
     tft.fillScreen(ST7735_BLACK); //setting up screen
     tft.setTextSize(2);
@@ -168,7 +168,7 @@ void displayData(bool status, bool door)
         tft.println("Motion");
     else
         tft.println("No motion");   
-    if (door == true)
+    if (open == true)
         tft.println("door open");
     else 
         tft.println("door closed");
