@@ -59,7 +59,8 @@ void loop() {
     int i = 0; //start loop over
     
     int result = DHT.acquireAndWait(1000); //wait up to 1 sec (default indefinitely)
-    while (i < 60)
+    val = LOW;
+    while (i < 10)
     {
         val = digitalRead(inputPin); //read input value
         if (status == true) //already registered motion in last 30 seconds
@@ -70,7 +71,12 @@ void loop() {
         }
         if (val == HIGH) //if motion for first time
         {
+            digitalWrite(blue, HIGH);
             status = true; //has seen motion
+        }
+        else{
+            digitalWrite(blue, LOW);
+            status = false;
         }
         delay(1000);
         i++;
@@ -149,5 +155,5 @@ void displayData(bool status)
     if (status == true)
         tft.println("Motion");
     else
-        tft.println("Motion");   
+        tft.println("No motion");   
 }
