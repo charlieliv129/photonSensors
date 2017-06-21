@@ -14,8 +14,8 @@
 #define cs A2 //chip select for LCD
 #define dc D0
 #define rst 0
-#define inputPin D2
-
+#define inputPin D2 //pir
+#define door A0 //door sensor
 
 int sampleInt = 60000;
 int tempf;
@@ -36,6 +36,8 @@ PietteTech_DHT DHT(DHTPIN, DHTTYPE);
 
 void setup() {
     pinMode(blue, OUTPUT);
+    pinMode(inputPin, INPUT);
+    pinMode(door, INPUT);
     //Variable exposed to cloud
     Particle.variable("Temperature", temp);
     Particle.variable("Humidity", humidity);
@@ -56,12 +58,22 @@ void setup() {
 
 void loop() {
     bool status = false;
+    bool open = false;
     int i = 0; //start loop over
+    int apart = 0;
     
     int result = DHT.acquireAndWait(1000); //wait up to 1 sec (default indefinitely)
     val = LOW;
     while (i < 10)
     {
+        apart = analogRead(door); // Get a reading
+        if (open == true)
+        {}
+        else if(rawAnalogStrength > 400)
+        {   
+            open = true;
+        }
+        
         val = digitalRead(inputPin); //read input value
         if (status == true) //already registered motion in last 30 seconds
         {   
@@ -137,11 +149,11 @@ void loop() {
     Particle.publish("DewPt", String(dew*1.8+32), PRIVATE);
     delay(500);
     digitalWrite(blue, LOW);
-    displayData(status);
+    displayData(status, open);
     //delay(sampleInt);
 }
 
-void displayData(bool status)
+void displayData(bool status, bool door)
 {
     tft.fillScreen(ST7735_BLACK); //setting up screen
     tft.setTextSize(2);
@@ -156,4 +168,8 @@ void displayData(bool status)
         tft.println("Motion");
     else
         tft.println("No motion");   
+    if (door == true)
+        tft.println("door open");
+    else 
+        tft.println("door closed");
 }
