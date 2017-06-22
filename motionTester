@@ -1,4 +1,8 @@
-// This #include statement was automatically added by the Particle IDE.
+PRODUCT_ID(4351);
+PRODUCT_VERSION(2);
+
+
+//This #include statement was automatically added by the Particle IDE.
 #include <Adafruit_ST7735.h>
 
 // This #include statement was automatically added by the Particle IDE.
