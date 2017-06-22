@@ -28,6 +28,7 @@ double humidityD;
 int doorState;
 int dew;
 int blue = D7;
+bool status;
 String location = "BTC_CBD_1";
 int val = LOW;   // variable for reading the pin status
 
@@ -45,6 +46,7 @@ void setup() {
     Particle.variable("DewPt", dew);
     Particle.variable("Location", location);
     Particle.variable("doorSensor", doorState);
+    Particle.variable("motion", status);
   
     tft.initG();
     tft.fillScreen(ST7735_BLACK); //setting up screen
@@ -59,7 +61,7 @@ void setup() {
 }
 
 void loop() {
-    bool status = false;
+    status = false;
     bool open = false;
     int i = 0; //start loop over
     int apart = 0;
@@ -147,11 +149,12 @@ void loop() {
     temperatureD = tempfD;
     
     digitalWrite(blue, HIGH);
-    Particle.publish("Location", location, PRIVATE); //unit location here
+    //Particle.publish("Location", location, PRIVATE); //unit location here
     Particle.publish("Temperature", String(temp), PRIVATE);
     Particle.publish("Humidity", String(humidity), PRIVATE);
-    Particle.publish("DewPt", String(dew*1.8+32), PRIVATE);
+    //Particle.publish("DewPt", String(dew*1.8+32), PRIVATE);
     Particle.publish("doorSensor", String(doorState), PRIVATE);
+    Particle.publish("motion", String(status), PRIVATE);
     delay(500);
     digitalWrite(blue, LOW);
     displayData(status, open);
