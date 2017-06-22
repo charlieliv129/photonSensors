@@ -25,6 +25,7 @@ double temperatureD;
 int temp;
 int humidity;
 double humidityD;
+int doorState;
 int dew;
 int blue = D7;
 String location = "BTC_CBD_1";
@@ -43,6 +44,7 @@ void setup() {
     Particle.variable("Humidity", humidity);
     Particle.variable("DewPt", dew);
     Particle.variable("Location", location);
+    Particle.variable("doorSensor", doorState);
   
     tft.initG();
     tft.fillScreen(ST7735_BLACK); //setting up screen
@@ -61,7 +63,7 @@ void loop() {
     bool open = false;
     int i = 0; //start loop over
     int apart = 0;
-    int doorState = 0; 
+    doorState = 0; 
     
     int result = DHT.acquireAndWait(1000); //wait up to 1 sec (default indefinitely)
     val = LOW;
