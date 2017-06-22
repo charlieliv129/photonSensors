@@ -61,6 +61,7 @@ void loop() {
     bool open = false;
     int i = 0; //start loop over
     int apart = 0;
+    int doorState = 0; 
     
     int result = DHT.acquireAndWait(1000); //wait up to 1 sec (default indefinitely)
     val = LOW;
@@ -71,6 +72,7 @@ void loop() {
         {}
         else if(apart > 400)
         {   
+            doorState = 1;
             open = true;
         }
         
@@ -147,6 +149,7 @@ void loop() {
     Particle.publish("Temperature", String(temp), PRIVATE);
     Particle.publish("Humidity", String(humidity), PRIVATE);
     Particle.publish("DewPt", String(dew*1.8+32), PRIVATE);
+    Particle.publish("doorSensor", String(doorState), PRIVATE);
     delay(500);
     digitalWrite(blue, LOW);
     displayData(status, open);
