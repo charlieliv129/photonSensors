@@ -1,0 +1,139 @@
+// This #include statement was automatically added by the Particle IDE.
+#include <Adafruit_ILI9341.h>
+
+// This #include statement was automatically added by the Particle IDE.
+#include <PietteTech_DHT.h>
+
+
+PRODUCT_ID(4351);
+PRODUCT_VERSION(4);
+
+//SCL to A3
+//SDA to A5
+//GND to GND
+//VCC to VIN
+
+#define DHTTYPE DHT22
+#define DHTPIN D1
+#define cs A2 //chip select for LCD
+#define dc D0
+#define rst 0
+#define inputPin D2 //pir
+#define door A0 //door sensor
+
+int temp;
+int humidity;
+int doorState;
+int dew;
+int blue = D7;
+bool status;
+int val = LOW;   // variable for reading the pin status
+
+Adafruit_ILI9341 tft = Adafruit_ILI9341(cs, dc, rst); //hardware spi
+PietteTech_DHT DHT(DHTPIN, DHTTYPE);
+
+
+void setup() {
+    pinMode(blue, OUTPUT);
+    pinMode(inputPin, INPUT);
+    pinMode(door, INPUT);
+    //Variable exposed to cloud
+    Particle.variable("Temperature", temp);
+    Particle.variable("Humidity", humidity);
+    Particle.variable("DewPt", dew);
+    Particle.variable("doorSensor", doorState);
+    Particle.variable("motion", status);
+  
+    tft.begin();
+    tft.fillScreen(ILI9341_BLACK); //setting up screen
+    tft.setTextColor(ILI9341_BLUE);
+    tft.setTextSize(3);
+    tft.setCursor(0,0);
+    
+    Serial.begin(9600);
+    
+    //Particle.variable("Temp", &tempF, DOUBLE);
+    
+}
+
+void loop() {
+    status = false;
+    bool open = false;
+    int i = 0; //start loop over
+    int apart = 0;
+    doorState = 0; 
+    
+    val = LOW;
+    while (i < 10)
+    {
+        apart = analogRead(door); // Get a reading
+        if (open == true)
+        {}
+        else if(apart > 400)
+        {   
+            doorState = 1;
+            open = true;
+        }
+        
+        val = digitalRead(inputPin); //read input value
+        if (status == true) //already registered motion in last 30 seconds
+        {   
+            i++;
+            delay(1000);
+            continue;
+        }
+        if (val == HIGH) //if motion for first time
+        {
+            digitalWrite(blue, HIGH);
+            status = true; //has seen motion
+        }
+        else{
+            digitalWrite(blue, LOW);
+            status = false;
+        }
+        delay(1000);
+        i++;
+    }
+        
+    int result = DHT.acquireAndWait(1000); //wait up to 1 sec (default indefinitely)
+    if(result == DHTLIB_OK ) //<------ this says no error , a good result
+    {
+        temp = DHT.getFahrenheit();
+        humidity = DHT.getHumidity();
+        dew = DHT.getDewPoint();
+    }
+    
+    digitalWrite(blue, HIGH);
+    //Particle.publish("Location", location, PRIVATE); //unit location here
+    Particle.publish("Temperature", String(temp), PRIVATE);
+    delay(100);
+    Particle.publish("Humidity", String(humidity), PRIVATE);
+    delay(100);
+    //Particle.publish("DewPt", String(dew*1.8+32), PRIVATE);
+    Particle.publish("doorSensor", String(doorState), PRIVATE);
+    delay(100);
+    Particle.publish("motion", String(status), PRIVATE);
+    delay(500);
+    digitalWrite(blue, LOW);
+    displayData(status, open, temp, humidity);
+    //delay(sampleInt);
+}
+
+void displayData(bool status, bool open, int temp, int humid)
+{
+    tft.fillScreen(ILI9341_BLACK); //setting up screen
+    tft.setTextSize(3);
+    tft.setCursor(0,0);
+    tft.print("Temp: ");
+    tft.println(temp);
+    tft.print("Hum: ");
+    tft.println(humid);
+    if (status == true)
+        tft.println("Motion");
+    else
+        tft.println("No motion");   
+    if (open == true)
+        tft.println("door open");
+    else 
+        tft.println("door closed");
+}
