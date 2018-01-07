@@ -1,2 +1,2 @@
 # photonSensors
-roommonitorfinal contains the final code for the device to be used in the room. It monitors 
+roommonitorfinal contains the final code for the device to be used in the room. It monitors for temperature, humidity, dew point, motion, and if the door is open in the server room. All of these are measured through sensors that are connected to a Particle Photon. Temperature, humidity, motion, and door status are all sent to an Azure database that can be monitored remotely. Additionally, these are also displayed on a LED screen that can be connected in the server room itself. 
