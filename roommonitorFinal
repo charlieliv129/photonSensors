@@ -64,7 +64,7 @@ void loop() {
     doorState = 0; 
     
     val = LOW;
-    while (i < 10)
+    while (i < 30)
     {
         apart = analogRead(door); // Get a reading
         if (open == true)
